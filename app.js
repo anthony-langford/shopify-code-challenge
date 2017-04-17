@@ -6,6 +6,7 @@ let url = 'https://backend-challenge-fall-2017.herokuapp.com/orders.json';
 let totalPages = null;
 let currentPage = 1;
 let availableCookies = 0;
+let orders = [];
 
 
 
@@ -25,16 +26,21 @@ function getAllPaginatedData (uri, callback) {
       console.log('statusCode:', response && response.statusCode); // Log the response status code if a response was received
       console.log('body:', body); // Log the body
 
-      totalPages = body.pagination.total;
-      currentPage = body.pagination.current_page;
-      if (currentPage === 1) { // Set available cookies on first page
-        availableCookies = body.available_cookies;
-      }
-      console.log('totalPages', totalPages);
-      console.log('currentPage', currentPage);
+
 
       if (!error && response.statusCode === 200) { // Check for errors
-        let data = body.
+        totalPages = body.pagination.total;
+        currentPage = body.pagination.current_page;
+        if (currentPage === 1) { // Set available cookies on first page
+          availableCookies = body.available_cookies;
+        }
+
+        console.log('currentPage', currentPage);
+        console.log('totalPages', totalPages);
+
+        orders = orders.concat(body.orders);
+        console.log('orders', orders);
+
         console.log('just before resolve');
         resolve();
       } else {
@@ -47,6 +53,7 @@ function getAllPaginatedData (uri, callback) {
 
   }).then(() => {
     console.log('after promise');
+
     if (currentPage === totalPages) { // Callback if last page
       callback;
     } else {
