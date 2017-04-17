@@ -4,34 +4,60 @@ const app        = express();
 
 let url = 'https://backend-challenge-fall-2017.herokuapp.com/orders.json';
 let totalPages = null;
-let currentPage = null;
-
+let currentPage = 1;
+let availableCookies = 0;
 
 
 
 // Gets data from all pages
-function getAllPaginatedData (url, callback) {
+function getAllPaginatedData (uri, callback) {
 
-  request({ uri: url, json: true }, (error, response, body) => {
 
-    console.log('error:', error); // Print the error if one occurred
-    console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-    console.log('body:', body); // Print the HTML for the Google homepage.
 
-    totalPages = body.pagination.total;
-    currentPage = body.pagination.current_page;
 
-    if (!error && response.statusCode === 200) { // Check for errors
-      // do something with data
-    }
+  const promise = new Promise((resolve, reject) => {
 
+
+    request({ uri: uri, json: true }, (error, response, body) => {
+
+
+      console.log('error:', error); // Log the error if one occurred
+      console.log('statusCode:', response && response.statusCode); // Log the response status code if a response was received
+      console.log('body:', body); // Log the body
+
+      totalPages = body.pagination.total;
+      currentPage = body.pagination.current_page;
+      if (currentPage === 1) { // Set available cookies on first page
+        availableCookies = body.available_cookies;
+      }
+      console.log('totalPages', totalPages);
+      console.log('currentPage', currentPage);
+
+      if (!error && response.statusCode === 200) { // Check for errors
+        let data = body.
+        console.log('just before resolve');
+        resolve();
+      } else {
+        reject(error);
+      }
+
+
+    })
+
+
+  }).then(() => {
+    console.log('after promise');
     if (currentPage === totalPages) { // Callback if last page
-      callback();
+      callback;
     } else {
-      console.log('url', url);
+      currentPage ++;
+      console.log('url', `${url}?page=${currentPage.toString()}`);
       getAllPaginatedData(`${url}?page=${currentPage.toString()}`);
     }
-  });
+  })
+
+
+
 
 }
 
