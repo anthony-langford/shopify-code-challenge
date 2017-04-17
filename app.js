@@ -3,7 +3,8 @@ const request    = require('request');
 const app        = express();
 
 let url = 'https://backend-challenge-fall-2017.herokuapp.com/orders.json';
-
+let totalPages = null;
+let currentPage = null;
 
 
 
@@ -17,16 +18,18 @@ function getAllPaginatedData (url, callback) {
     console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
     console.log('body:', body); // Print the HTML for the Google homepage.
 
-    let totalPages = body.pagination.total;
+    totalPages = body.pagination.total;
+    currentPage = body.pagination.current_page;
 
     if (!error && response.statusCode === 200) { // Check for errors
       // do something with data
     }
 
-    if (body.pagination.currentpage === body.pagination.total) { // Callback if last page
+    if (currentPage === totalPages) { // Callback if last page
       callback();
     } else {
-      getAllPaginatedData();
+      console.log('url', url);
+      getAllPaginatedData(`${url}?page=${currentPage.toString()}`);
     }
   });
 
