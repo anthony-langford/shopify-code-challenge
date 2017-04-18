@@ -170,130 +170,61 @@ let orders = [
     ]
   },
   {
-      "id": 11,
-      "fulfilled": false,
-      "customer_email": "julien@interview.com",
-      "products": [
-        {
-          "title": "Carrot Cake",
-          "amount": 1,
-          "unit_price\"": 20.45
-        },
-        {
-          "title": "Cookie",
-          "amount": 1,
-          "unit_price": 14.5
-        }
-      ]
-    }
+    "id": 11,
+    "fulfilled": false,
+    "customer_email": "julien@interview.com",
+    "products": [
+      {
+        "title": "Carrot Cake",
+        "amount": 1,
+        "unit_price\"": 20.45
+      },
+      {
+        "title": "Cookie",
+        "amount": 1,
+        "unit_price": 14.5
+      }
+    ]
+  }
 ]
 
-
-function sort (prop, arr) {
-  prop = prop.split('.');
-  let len = prop.length;
-
-  arr.sort((a, b) => {
-      let i = 0;
-      while(i < len) {
-        a = a[prop[i]];
-        b = b[prop[i]];
-        i++;
-      }
-      if (a < b) {
-        return -1;
-      } else if (a > b) {
-        return 1;
-      } else {
-        return 0;
-      }
-  });
-
-  return arr;
-
-};
-
-
-
-
-
-Array.prototype.find = function(obj) {
-  // Loop through array
-  for (let i = 0, len = this.length; i < len; i++) {
-    let ele = this[i];
-    let match = true;
-    // Check each object
-    for (let x in obj) {
-      if (ele[x] !== obj[x]) {
-        match = false;
-        break;
-      }
-    }
-    // Did it match?
-    if (match) {
-      return i;
-    }
-  }
-};
-
-
-
-
+let cookiesLeft = 6;
 let unfulfilledOrders = [];
 
-function removeFulfilledOrders () {
+// Filters out fulfilled orders
+function removeFulfilledOrders() {
   unfulfilledOrders = orders.filter((order) => {
-    return order.fulfilled == false;
+    return order.fulfilled !== true;
   })
   console.log('unfulfilled orders', unfulfilledOrders);
 }
 
-
-function checkOrdersForCookies () {
-  unfulfilledOrders = orders.filter((order) => {
-    if (order.products.find({ title: 'Cookie' }) == 1) {
-      return order;
-    }
-  })
-  console.log('unfulfilled orders', unfulfilledOrders);
-}
-
-
-checkOrdersForCookies();
+removeFulfilledOrders();
 
 
 
+let sortingArray = []
 
-function checkForCookies (array, searchFor, property) {
-  let index = -1;
-  for (let i = 0; i < array.length; i++) {
-    if (array[i].hasOwnProperty(property)) {
-      if (array[property] > 0) {
-        return
+
+function sort () {
+  unfulfilledOrders.forEach((order) => {
+    order.products.forEach((product) => {
+      if (product.title === 'Cookie') {
+        let idCookiePair = new Object();
+        idCookiePair['id'] = order.id;
+        idCookiePair['cookies'] = product.amount;
+        sortingArray.push(idCookiePair);
+
       }
-    }
-  }
+    })
+  })
+  sortingArray.sort((a, b) => {
+    return (a.cookies) - (b.cookies);
+  });
+  console.log(sortingArray);
 }
 
-
-
-
-// console.log(orders.find({ products: [{ cookies: 1 }] }));
-
-
-
-
-
-// console.log(sort("amount", orders));
-
-
-
-
-
-
-
-
-
+sort();
 
 
 
