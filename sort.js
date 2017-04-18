@@ -213,6 +213,32 @@ function sort (prop, arr) {
 
 };
 
+
+
+
+
+Array.prototype.find = function(obj) {
+  // Loop through array
+  for (let i = 0, len = this.length; i < len; i++) {
+    let ele = this[i];
+    let match = true;
+    // Check each object
+    for (let x in obj) {
+      if (ele[x] !== obj[x]) {
+        match = false;
+        break;
+      }
+    }
+    // Did it match?
+    if (match) {
+      return i;
+    }
+  }
+};
+
+
+
+
 let unfulfilledOrders = [];
 
 function removeFulfilledOrders () {
@@ -223,18 +249,37 @@ function removeFulfilledOrders () {
 }
 
 
-
-
-
-function removeOrdersWithoutCookies () {
+function checkOrdersForCookies () {
   unfulfilledOrders = orders.filter((order) => {
-    order.products.forEach((product) => {
-      if (cookiesInOrder == false) {
-
-      }
+    if (order.products.find({ title: 'Cookie' }) == 1) {
+      return order;
+    }
   })
   console.log('unfulfilled orders', unfulfilledOrders);
 }
+
+
+checkOrdersForCookies();
+
+
+
+
+function checkForCookies (array, searchFor, property) {
+  let index = -1;
+  for (let i = 0; i < array.length; i++) {
+    if (array[i].hasOwnProperty(property)) {
+      if (array[property] > 0) {
+        return
+      }
+    }
+  }
+}
+
+
+
+
+// console.log(orders.find({ products: [{ cookies: 1 }] }));
+
 
 
 
