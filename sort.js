@@ -188,15 +188,19 @@ let orders = [
   }
 ]
 
+
+
 let cookiesLeft = 6;
 let unfulfilledOrders = [];
+
+
 
 // Filters out fulfilled orders
 function removeFulfilledOrders() {
   unfulfilledOrders = orders.filter((order) => {
     return order.fulfilled !== true;
   })
-  console.log('unfulfilled orders', unfulfilledOrders);
+  // console.log('unfulfilled orders', unfulfilledOrders);
 }
 
 removeFulfilledOrders();
@@ -204,6 +208,8 @@ removeFulfilledOrders();
 
 
 let sortingArray = []
+let sortedOrders = [];
+
 
 
 function sort () {
@@ -212,16 +218,25 @@ function sort () {
       if (product.title === 'Cookie') {
         let idCookiePair = new Object();
         idCookiePair['id'] = order.id;
+        idCookiePair['index'] = orders.indexOf(order);
         idCookiePair['cookies'] = product.amount;
         sortingArray.push(idCookiePair);
-
+        sortingArray.sort((a, b) => {
+          return (a.cookies) - (b.cookies);
+        });
       }
     })
   })
-  sortingArray.sort((a, b) => {
-    return (a.cookies) - (b.cookies);
-  });
-  console.log(sortingArray);
+  sortingArray.forEach((obj) => {
+    let index = obj.index;
+    if (cookiesLeft >= obj.cookies) {
+      sortedOrders.push(orders[index]);
+      cookiesLeft -= obj.cookies;
+      console.log(sortedOrders);
+      console.log('cookiesLeft', cookiesLeft);
+    }
+  })
+
 }
 
 sort();
