@@ -7,16 +7,21 @@ let totalPages = null;
 let currentPage = 1;
 let availableCookies = 0;
 let orders = [];
+let unfulfilledOrders = [];
 
+// Filters out fulfilled orders
+function removeFulfilledOrders () {
+  unfulfilledOrders = orders.filter((order) => {
+    return order.fulfilled !== true;
+  }).filter((order) => {
+    return order.fulfilled !== true;
+  })
+  console.log('unfulfilled orders', unfulfilledOrders);
+}
 
 
 // Gets data from all pages
 function getAllPaginatedData (uri, callback) {
-
-
-
-
-  const promise = new Promise((resolve, reject) => {
 
 
     request({ uri: uri, json: true }, (error, response, body) => {
@@ -27,32 +32,25 @@ function getAllPaginatedData (uri, callback) {
       console.log('body:', body); // Log the body
 
 
+      if (!error && response.statusCode === 200) {
 
-      if (!error && response.statusCode === 200) { // Check for errors
-        totalPages = body.pagination.total;
         currentPage = body.pagination.current_page;
-        if (currentPage === 1) { // Set available cookies on first page
+
+        if (currentPage === 1) { // Set total pages and available cookies on first page
+          totalPages = body.pagination.total;
           availableCookies = body.available_cookies;
         }
 
         console.log('currentPage', currentPage);
         console.log('totalPages', totalPages);
 
-        orders = orders.concat(body.orders);
-        console.log('orders', orders);
+        if (body.orders.length > 0) {  // Save orders if any on page
+          orders = orders.concat(body.orders);
+        }
 
-        console.log('just before resolve');
-        resolve();
       } else {
-        reject(error);
+        new Error('Error: ', error);
       }
-
-
-    })
-
-
-  }).then(() => {
-    console.log('after promise');
 
     if (currentPage === totalPages) { // Callback if last page
       callback;
@@ -73,7 +71,7 @@ function getAllPaginatedData (uri, callback) {
 
 app.get('/', (req, res) => {
   getAllPaginatedData(url, () => {
-    console.log('Done!');
+    console.log('Done!');                 // why isn't this running?
   });
   res.status(200).send('Hello!');
 });
