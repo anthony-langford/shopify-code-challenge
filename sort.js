@@ -250,7 +250,18 @@ pushOrdersWithoutCookies();
 // console.log('pendingOrders', pendingOrders);
 // console.log('sortedOrders', sortedOrders);
 
+console.log(pendingOrders[1].products.find({ title: 'Cookie' }))
+console.log(pendingOrders[1].products[pendingOrders[1].products.find({ title: 'Cookie' })].amount)
 
+
+function sortPendingOrdersByCookies() {
+    pendingOrders.sort((a, b) => {
+      return b.products[a.products.find({ title: 'Cookie' })].amount - a.products[b.products.find({ title: 'Cookie' })].amount
+    })
+    console.log(pendingOrders);
+}
+
+sortPendingOrdersByCookies();
 
 
 
