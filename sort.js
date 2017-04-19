@@ -250,39 +250,41 @@ pushOrdersWithoutCookies();
 // console.log('pendingOrders', pendingOrders);
 // console.log('sortedOrders', sortedOrders);
 
-console.log(pendingOrders[1].products.find({ title: 'Cookie' }))
-console.log(pendingOrders[1].products[pendingOrders[1].products.find({ title: 'Cookie' })].amount)
-
 
 function sortPendingOrdersByCookies() {
-    pendingOrders.sort((a, b) => {
-      return b.products[a.products.find({ title: 'Cookie' })].amount - a.products[b.products.find({ title: 'Cookie' })].amount
-    })
-    console.log(pendingOrders);
+  pendingOrders.sort((a, b) => {
+    return b.products[a.products.find({ title: 'Cookie' })].amount - a.products[b.products.find({ title: 'Cookie' })].amount;
+  })
 }
 
-sortPendingOrdersByCookies();
 
 
 
-  // pendingOrders.forEach((product) => {
-    // if (product.title === 'Cookie') {
-    //   pendingOrders.sort((a, b) => {
-    //       return a - b;
-    //   })
-      // let orderSortingData = {
-      //   id: order.id,
-      //   index: orders.indexOf(order),
-      //   cookies: product.amount
-      // }
-    //   sortingArray.push(orderSortingData);
-    //   sortingArray.sort((a, b) => {
-    //     return a.cookies - b.cookies;
-    //   });
-    // }
-  // })
 
-// sortCookieOrders();
+
+function pushCookieOrders() {
+  sortPendingOrdersByCookies();
+  for (let i = 0; i < pendingOrders.length; i++) {
+    let orderCookieCount = pendingOrders[i].products[pendingOrders[i].products.find({ title: 'Cookie' })].amount;
+    if (orderCookieCount < remainingCookies) {
+      remainingCookies -= orderCookieCount;
+      sortedOrders.push(pendingOrders[i]);
+      pendingOrders.splice(i, 1);
+    }
+  }
+}
+
+
+pushCookieOrders();
+console.log('pendingOrders', pendingOrders);
+console.log('sortedOrders', sortedOrders);
+
+
+
+
+
+
+
 
 
 
