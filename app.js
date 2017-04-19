@@ -1,6 +1,7 @@
-const express    = require('express');
-const request    = require('request');
-const app        = express();
+const express = require('express');
+const request = require('request');
+const app     = express();
+
 
 let url = 'https://backend-challenge-fall-2017.herokuapp.com/orders.json';
 let totalPages = null;
@@ -9,26 +10,6 @@ let availableCookies = 0;
 let orders = [];
 let unfulfilledOrders = [];
 let ordersToBeFulfilled = [];
-
-// Find object in array with given key and return index
-Array.prototype.find = (obj) => {
-  // Loop through array
-  for (let i = 0, len = this.length; i < len; i++) {
-    let ele = this[i];
-    let match = true;
-    // Check each object
-    for (let x in obj) {
-      if (ele[x] !== obj[x]) {
-        match = false;
-        break;
-      }
-    }
-    // Did it match?
-    if (match) {
-      return i;
-    }
-  }
-};
 
 
 // Filters out fulfilled orders
@@ -90,7 +71,7 @@ function getAllPaginatedData(uri, callback) {
 
 app.get('/', (req, res) => {
   getAllPaginatedData(url, () => {
-    console.log('Done!');                 // why isn't this running?
+    console.log('Done!');
   });
   res.status(200).send('Hello!');
 });
