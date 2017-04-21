@@ -282,3 +282,21 @@ pushCookieOrders();
 console.log('unfulfilledOrders', unfulfilledOrders);
 console.log('pendingOrders', pendingOrders);
 
+
+function sortById() {
+  unfulfilledOrders.sort((a, b) => {
+    return a.id - b.id;
+  })
+}
+
+sortById();
+console.log('unfulfilledOrders', unfulfilledOrders);
+
+
+
+
+
+
+
+
+

@@ -45,6 +45,45 @@ function findWithAttr(array, key, value) {
 
 
 
+// Gets data from all pages
+function getAllPaginatedData(uri, callback) {
+
+  request({ uri: uri, json: true }, (error, response, body) => {
+
+    console.log('error:', error); // Log the error if one occurred
+    console.log('statusCode:', response && response.statusCode); // Log the response status code if a response was received
+    console.log('body:', body); // Log the body
+
+    if (!error && response.statusCode === 200) {
+
+      currentPage = body.pagination.current_page;
+
+      if (currentPage === 1) { // Set total pages and available cookies on first page
+        totalPages = body.pagination.total;
+        availableCookies = body.available_cookies;
+      }
+
+      console.log('currentPage', currentPage);
+      console.log('totalPages', totalPages);
+
+      if (body.orders.length > 0) {  // Save orders if any on page
+        orders = orders.concat(body.orders);
+      }
+
+    } else {
+      new Error('Error: ', error);
+    }
+
+    if (currentPage === totalPages) { // Callback if last page
+      callback;
+    } else {
+      currentPage ++;
+      console.log('url', `${url}?page=${currentPage.toString()}`);
+      getAllPaginatedData(`${url}?page=${currentPage.toString()}`);
+    }
+  })
+}
+
 
 
 // Filters out fulfilled orders
@@ -108,45 +147,14 @@ function pushCookieOrders() {
 
 
 
-// Gets data from all pages
-function getAllPaginatedData(uri, callback) {
-
-  request({ uri: uri, json: true }, (error, response, body) => {
-
-    console.log('error:', error); // Log the error if one occurred
-    console.log('statusCode:', response && response.statusCode); // Log the response status code if a response was received
-    console.log('body:', body); // Log the body
-
-    if (!error && response.statusCode === 200) {
-
-      currentPage = body.pagination.current_page;
-
-      if (currentPage === 1) { // Set total pages and available cookies on first page
-        totalPages = body.pagination.total;
-        availableCookies = body.available_cookies;
-      }
-
-      console.log('currentPage', currentPage);
-      console.log('totalPages', totalPages);
-
-      if (body.orders.length > 0) {  // Save orders if any on page
-        orders = orders.concat(body.orders);
-      }
-
-    } else {
-      new Error('Error: ', error);
-    }
-
-    if (currentPage === totalPages) { // Callback if last page
-      callback;
-    } else {
-      currentPage ++;
-      console.log('url', `${url}?page=${currentPage.toString()}`);
-      getAllPaginatedData(`${url}?page=${currentPage.toString()}`);
-    }
+function sortById() {
+  unfulfilledOrders.sort((a, b) => {
+    return a.id - b.id;
   })
 }
 
+// sortById();
+// console.log('unfulfilledOrders', unfulfilledOrders);
 
 
 
@@ -162,8 +170,6 @@ app.get('/', (req, res) => {
   });
   res.status(200).send('Hello!');
 });
-
-
 
 
 
