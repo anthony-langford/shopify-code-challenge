@@ -190,9 +190,8 @@ let orders = [
 
 
 let remainingCookies = 6;
-let pendingOrders = [];
-let sortedOrders = [];
 let unfulfilledOrders = [];
+let pendingOrders = [];
 
 // Find object in array with given key and return index
 Array.prototype.find = function(obj) {
@@ -214,10 +213,10 @@ Array.prototype.find = function(obj) {
   }
 };
 
-// Find any order with
-function findWithAttr(array, attr, value) {
+// Find any order with given key/value pair
+function findWithAttr(array, key, value) {
   for (let i = 0; i < array.length; i++) {
-    if(array[i][attr] === value) {
+    if(array[i][key] === value) {
       return i;
     }
   }
@@ -227,256 +226,59 @@ function findWithAttr(array, attr, value) {
 
 // Filters out fulfilled orders
 function removeFulfilledOrders() {
-  pendingOrders = orders.filter((order) => {
+  unfulfilledOrders = orders.filter((order) => {
     return order.fulfilled !== true;
   })
 }
 
 removeFulfilledOrders();
-// console.log(pendingOrders);
+// console.log(unfulfilledOrders);
 
 // Push all orders without cookies first
-let pushOrdersWithoutCookies = function() {
+function pushOrdersWithoutCookies() {
   let sortingArray = [];
-  for (let i = 0; i < pendingOrders.length; i++) {
-    if (findWithAttr(pendingOrders[i].products, 'title', 'Cookie') === -1) {
-        sortedOrders.push(pendingOrders[i]);
-        pendingOrders.splice(i, 1);
+  for (let i = 0; i < unfulfilledOrders.length; i++) {
+    if (findWithAttr(unfulfilledOrders[i].products, 'title', 'Cookie') === -1) {
+        pendingOrders.push(unfulfilledOrders[i]);
+        unfulfilledOrders.splice(i, 1);
     };
   }
 }
 
 pushOrdersWithoutCookies();
+// console.log('unfulfilledOrders', unfulfilledOrders);
 // console.log('pendingOrders', pendingOrders);
-// console.log('sortedOrders', sortedOrders);
 
 
-function sortPendingOrdersByCookies() {
-  pendingOrders.sort((a, b) => {
-    return b.products[a.products.find({ title: 'Cookie' })].amount - a.products[b.products.find({ title: 'Cookie' })].amount;
+function sortunfulfilledOrdersByCookies() {
+  unfulfilledOrders.sort((a, b) => {
+    return b.products[b.products.find({ title: 'Cookie' })].amount - a.products[a.products.find({ title: 'Cookie' })].amount;
   })
 }
 
-
+sortunfulfilledOrdersByCookies();
+// console.log('unfulfilledOrders', unfulfilledOrders);
 
 
 
 
 function pushCookieOrders() {
-  sortPendingOrdersByCookies();
-  for (let i = 0; i < pendingOrders.length; i++) {
-    let orderCookieCount = pendingOrders[i].products[pendingOrders[i].products.find({ title: 'Cookie' })].amount;
-    if (orderCookieCount < remainingCookies) {
+  let indexesToRemove = [];
+  for (let i = 0; i < unfulfilledOrders.length; i++) {
+    let orderCookieCount = unfulfilledOrders[i].products[unfulfilledOrders[i].products.find({ title: 'Cookie' })].amount;
+    if (orderCookieCount <= remainingCookies) {
       remainingCookies -= orderCookieCount;
-      sortedOrders.push(pendingOrders[i]);
-      pendingOrders.splice(i, 1);
+      pendingOrders.push(unfulfilledOrders[i]);
+      indexesToRemove.push(i);
     }
+  }
+  for (let i = indexesToRemove.length - 1; i >= 0; i--) { // Need to loop in reverse order to remove orders so index doesn't change every cycle
+    unfulfilledOrders.splice(indexesToRemove[i], 1);
   }
 }
 
 
 pushCookieOrders();
+console.log('unfulfilledOrders', unfulfilledOrders);
 console.log('pendingOrders', pendingOrders);
-console.log('sortedOrders', sortedOrders);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// sortingArray.sort((a, b) => {
-//   return a.cookies - b.cookies;
-// });
-
-// pendingOrders.forEach((order) => {
-//   order.products.forEach((product) => {
-//     if (product.title === 'Cookie') {
-//       let orderSortingData = {
-//         id: order.id,
-//         index: orders.indexOf(order),
-//         cookies: product.amount
-//       }
-//       sortingArray.push(orderSortingData);
-//       sortingArray.sort((a, b) => {
-//         return a.cookies - b.cookies;
-//       });
-//     }
-//   })
-// })
-
-// console.log(pendingOrders);
-
-
-
-
-
-// sort orders with highest cookies
-  // if order has more than remaining cookies, then skip
-  // if same amount of cookies, then prioritize lower id
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// removeFulfilledOrders();
-
-
-
-// checkForCookies = [];
-
-// orders.forEach((order) => {
-//   checkForCookies.push(findWithAttr(order.products, 'title', 'Cookie'));
-// })
-
-// console.log(checkForCookies);
-
-// for (let i = 0; i < checkForCookies.length; i++) {
-//   if (checkForCookies[i] === -1) {
-//     pendingOrders.splice(i, 1)
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-let sort1 = function(prop, arr) {
-  prop = prop.split('.');
-  let len = prop.length;
-
-  arr.sort(function(a, b) {
-    let i = 0;
-    while (i < len) {
-      a = a[prop[i]];
-      b = b[prop[i]];
-      i++;
-    }
-
-    if (a < b) {
-      return -1;
-    } else if (a > b) {
-      return 1;
-    } else {
-      return 0;
-    }
-
-  });
-  return arr;
-};
-
-
-
-// sort1()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function sort() {
-  let sortingArray = [];
-  let sortedOrders = [];
-  pendingOrders.forEach((order) => {
-    order.products.forEach((product) => {
-      if (product.title === 'Cookie') {
-        let orderSortingData = {
-          id: order.id,
-          index: orders.indexOf(order),
-          cookies: product.amount
-        }
-        sortingArray.push(orderSortingData);
-        sortingArray.sort((a, b) => {
-          return a.cookies - b.cookies;
-        });
-      }
-    })
-  })
-  sortingArray.forEach((obj) => {
-    let index = obj.index;
-    if (remainingCookies >= obj.cookies) {
-      sortedOrders.push(orders[index]);
-      remainingCookies -= obj.cookies;
-      console.log(sortedOrders);
-      console.log('remainingCookies', remainingCookies);
-    } else {
-      unfulfilledOrders.push(orders[index].id);
-      console.log('unfulfilledOrders', unfulfilledOrders);
-    }
-  })
-
-}
-
-// sort();
-
-
-
-
-
-
-// completedOrders = [1, 2, 3]
-// pendingOrders = [5, 6, 10]
-// unfulfilledOrders = []
-
-
-
-
-
 
