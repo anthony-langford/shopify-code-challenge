@@ -58,7 +58,7 @@ function getPages(uri) {
       console.log('statusCode:', res && res.statusCode); // Log the response status code if a response was received
       console.log('body:', body); // Log the body
 
-      if (!err && res.statusCode === 200) {
+      if (!err && res.statusCode === 200) { // Set total pages and remaining cookies if no error. What happens if body.pagination.total = undef? Need error handler
         totalPages = body.pagination.total;
         remainingCookies = body.available_cookies;
         console.log('totalPages', totalPages);
@@ -95,7 +95,7 @@ function getPageData(uri) {
 }
 
 
-
+// Creates array of async requests
 function preparePromises(url) {
   let promises = [];
   return new Promise((resolve, reject) => {
@@ -158,7 +158,7 @@ function pushCookieOrders() {
       indexesToRemove.push(i);
     }
   }
-  for (let i = indexesToRemove.length - 1; i >= 0; i--) { // Need to loop in reverse order to remove orders so index doesn't change every cycle
+  for (let i = indexesToRemove.length - 1; i >= 0; i--) {
     unfulfilledOrders.splice(indexesToRemove[i], 1);
   }
   console.log('unfulfilledOrders', unfulfilledOrders);
