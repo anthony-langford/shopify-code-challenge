@@ -74,7 +74,6 @@ function getPages(uri) {
 
 
 
-
 function getPageData(uri) {
   return new Promise((resolve, reject) => {
     request({ uri: uri, json: true }, (err, res, body) => {
@@ -97,7 +96,6 @@ function getPageData(uri) {
 
 
 
-
 function preparePromises(url) {
   let promises = [];
   return new Promise((resolve, reject) => {
@@ -106,11 +104,9 @@ function preparePromises(url) {
       promises.push(p);
     }
     console.log('promises array', promises);
-    resolve(promises);                                                 // How to trigger this after all responses?¿?¿ˀˀˀˀˀ Promise.all([])?
-    // Need to run a single Promise.all([]) with every getPageData() inside array
+    resolve(promises);
   })
 }
-
 
 
 
@@ -120,11 +116,8 @@ function removeFulfilledOrders() {
   unfulfilledOrders = orders.filter((order) => {
     return order.fulfilled !== true;
   })
+  console.log('unfulfilledOrders', unfulfilledOrders);
 }
-
-// removeFulfilledOrders();
-// console.log(unfulfilledOrders);
-
 
 
 
@@ -138,12 +131,9 @@ function pushOrdersWithoutCookies() {
         unfulfilledOrders.splice(i, 1);
     };
   }
+  console.log('unfulfilledOrders', unfulfilledOrders);
+  console.log('pendingOrders', pendingOrders);
 }
-
-// pushOrdersWithoutCookies();
-// console.log('unfulfilledOrders', unfulfilledOrders);
-// console.log('pendingOrders', pendingOrders);
-
 
 
 
@@ -152,11 +142,8 @@ function sortUnfulfilledOrdersByCookies() {
   unfulfilledOrders.sort((a, b) => {
     return b.products[b.products.find({ title: 'Cookie' })].amount - a.products[a.products.find({ title: 'Cookie' })].amount;
   })
+  console.log('unfulfilledOrders', unfulfilledOrders);
 }
-
-// sortUnfulfilledOrdersByCookies();
-// console.log('unfulfilledOrders', unfulfilledOrders);
-
 
 
 
@@ -174,12 +161,9 @@ function pushCookieOrders() {
   for (let i = indexesToRemove.length - 1; i >= 0; i--) { // Need to loop in reverse order to remove orders so index doesn't change every cycle
     unfulfilledOrders.splice(indexesToRemove[i], 1);
   }
+  console.log('unfulfilledOrders', unfulfilledOrders);
+  console.log('pendingOrders', pendingOrders);
 }
-
-// pushCookieOrders();
-// console.log('unfulfilledOrders', unfulfilledOrders);
-// console.log('pendingOrders', pendingOrders);
-
 
 
 
@@ -190,62 +174,47 @@ function sortById(arr) {
   })
 }
 
-// sortById(unfulfilledOrders);
-// console.log('unfulfilledOrders', unfulfilledOrders);
-
-
 
 
 function stripToIds(arr) {
   let unfulfilled_orders = [];
   for (i = 0; i < unfulfilledOrders; i++) {
-    unfulfilled_orders.push(unfulfilledOrders.id)
+    unfulfilled_orders.push(arr.id)
   }
 }
 
 
 
 app.get('/', (req, res) => {
-  // Promise.all([getPages(url), getAllData(url)])
-  // .then(() => {
-  //   console.log('ORDERS', orders);
-  //   res.json({
-  //     'remaining_cookies': remainingCookies,
-  //     'unfulfilled_orders': unfulfilledOrders
-  //   })
-  // })
-  // .catch((err) => {
-  //   new Error(err);
-  // })
 
+  // Need to refactor
   getPages(url)
   .then(() => {
     preparePromises(url)
     .then((promises) => {
       Promise.all(promises)
       .then(() => {
-        console.log('Sorting orders', orders);
         sortById(orders);
-        console.log('Sorted orders', orders);
         removeFulfilledOrders();
         pushOrdersWithoutCookies();
         sortUnfulfilledOrdersByCookies();
         pushCookieOrders();
         sortById(unfulfilledOrders);
+        console.log('Sorted unfulfilled orders by ID', unfulfilledOrders);
         let unfulfilled_orders = [];
         for (i = 0; i < unfulfilledOrders; i++) {
           unfulfilled_orders.push(unfulfilledOrders.id)
         }
         res.json({
           'remaining_cookies': remainingCookies,
-          'unfulfilled_orders': unfulfilledOrders
+          'unfulfilled_orders': unfulfilledOrders // Need to strip down to IDs
         })
       })
     })
   })
 
-
 });
+
 
 
 
