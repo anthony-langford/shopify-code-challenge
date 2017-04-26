@@ -293,9 +293,15 @@ sortById();
 console.log('unfulfilledOrders', unfulfilledOrders);
 
 
+let orderIds = [];
+function getOrderIds() {
+  unfulfilledOrders.forEach((order) => {
+    orderIds.push(order.id);
+  })
+}
 
-
-
+getOrderIds();
+console.log(orderIds);
 
 
 

@@ -8,8 +8,10 @@ let totalPages = null;
 let currentPage = 0;
 let remainingCookies = 0;
 let orders = [];
-let unfulfilledOrders = [];
 let pendingOrders = [];
+let unfulfilledOrders = [];
+let unfulfilledOrderIds = [];
+
 
 
 // Find object in array with given key and return index
@@ -43,7 +45,7 @@ function findWithAttr(array, key, value) {
 }
 
 
-
+// Gets pagination data and remaining cookies
 function getPages(uri) {
   totalPages = null;
   currentPage = 0;
@@ -73,7 +75,7 @@ function getPages(uri) {
 }
 
 
-
+// Gets orders from page
 function getPageData(uri) {
   return new Promise((resolve, reject) => {
     request({ uri: uri, json: true }, (err, res, body) => {
@@ -137,16 +139,17 @@ function pushOrdersWithoutCookies() {
 
 
 
-function sortUnfulfilledOrdersByCookies() {
-  console.log('Sorting unfulfilled orders by cookies');
-  unfulfilledOrders.sort((a, b) => {
+// Sort orders by amount of cookies
+function sortOrdersByCookies(arr) {
+  console.log('Sorting orders by cookies');
+  arr.sort((a, b) => {
     return b.products[b.products.find({ title: 'Cookie' })].amount - a.products[a.products.find({ title: 'Cookie' })].amount;
   })
-  console.log('unfulfilledOrders', unfulfilledOrders);
+  console.log('sorted by cookies', arr);
 }
 
 
-
+// Move orders with cookies from unfulfilled to pending if there's enough cookies left
 function pushCookieOrders() {
   console.log('Pushing orders with cookies');
   let indexesToRemove = [];
@@ -167,6 +170,7 @@ function pushCookieOrders() {
 
 
 
+// Sort orders by IDs
 function sortById(arr) {
   console.log('Sorting by ID');
   arr.sort((a, b) => {
@@ -176,11 +180,12 @@ function sortById(arr) {
 
 
 
-function stripToIds(arr) {
-  let unfulfilled_orders = [];
-  for (i = 0; i < unfulfilledOrders; i++) {
-    unfulfilled_orders.push(arr.id)
-  }
+// Creates array of order IDs
+function getOrderIds(arr) {
+  arr.forEach((order) => {
+    unfulfilledOrderIds.push(order.id);
+  });
+  console.log('pushed order IDs to unfulfilledOrderIds', unfulfilledOrderIds);
 }
 
 
@@ -197,21 +202,17 @@ app.get('/', (req, res) => {
         sortById(orders);
         removeFulfilledOrders();
         pushOrdersWithoutCookies();
-        sortUnfulfilledOrdersByCookies();
+        sortOrdersByCookies(unfulfilledOrders);
         pushCookieOrders();
         sortById(unfulfilledOrders);
-        console.log('Sorted unfulfilled orders by ID', unfulfilledOrders);
-        let unfulfilled_orders = [];
-        for (i = 0; i < unfulfilledOrders; i++) {
-          unfulfilled_orders.push(unfulfilledOrders.id)
-        }
+        getOrderIds(unfulfilledOrders);
         res.json({
           'remaining_cookies': remainingCookies,
-          'unfulfilled_orders': unfulfilledOrders // Need to strip down to IDs
+          'unfulfilled_orders': unfulfilledOrderIds
         })
       })
     })
-  })
+  });
 
 });
 
