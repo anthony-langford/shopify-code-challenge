@@ -29,7 +29,7 @@ Array.prototype.find = function(obj) {
       return i;
     }
   }
-};
+}
 
 // Find any order with given key/value pair
 function findWithAttr(array, key, value) {
@@ -66,7 +66,7 @@ function getPages(uri) {
         reject(Error(err));
       }
 
-    });
+    })
   });
 }
 
@@ -74,6 +74,7 @@ function getPages(uri) {
 function getPageData(uri) {
   return new Promise((resolve, reject) => {
     request({ uri: uri, json: true }, (err, res, body) => {
+
       console.log('PAGE', body.pagination.current_page);
       console.log('error:', err); // Log the error if one occurred
       console.log('statusCode:', res && res.statusCode); // Log the response status code if a response was received
@@ -88,7 +89,7 @@ function getPageData(uri) {
         reject(Error(err));
       }
     })
-  })
+  });
 }
 
 // Creates array of async requests
@@ -116,15 +117,15 @@ function pushOrdersWithoutCookies() {
     if (findWithAttr(unfulfilledOrders[i].products, 'title', 'Cookie') === -1) {
       pendingOrders.push(unfulfilledOrders[i]);
       unfulfilledOrders.splice(i, 1);
-    };
-  };
+    }
+  }
 }
 
 // Sort orders by amount of cookies
 function sortOrdersByCookies(arr) {
   arr.sort((a, b) => {
     return b.products[b.products.find({ title: 'Cookie' })].amount - a.products[a.products.find({ title: 'Cookie' })].amount;
-  });
+  })
 }
 
 // Move orders with cookies from unfulfilled to pending if there's enough cookies left
@@ -154,11 +155,12 @@ function sortById(arr) {
 function getOrderIds(arr) {
   arr.forEach((order) => {
     unfulfilledOrderIds.push(order.id);
-  });
+  })
 }
 
 app.get('/', (req, res) => {
-  getPages(url).then(() => {
+  getPages(url)
+  .then(() => {
     Promise.all(preparePromises(url))
     .then(() => {
       sortById(orders);
