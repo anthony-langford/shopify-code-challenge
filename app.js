@@ -2,17 +2,14 @@ const express = require('express');
 const request = require('request');
 const app     = express();
 
-
-let url = 'https://backend-challenge-fall-2017.herokuapp.com/orders.json';
+const url = 'https://backend-challenge-fall-2017.herokuapp.com/orders.json';
 let totalPages = null;
 let currentPage = 0;
 let remainingCookies = 0;
 let orders = [];
 let pendingOrders = [];
 let unfulfilledOrders = [];
-let unfulfilledOrderIds = [];
-
-
+const unfulfilledOrderIds = [];
 
 // Find object in array with given key and return index
 Array.prototype.find = function(obj) {
@@ -44,7 +41,6 @@ function findWithAttr(array, key, value) {
   return -1;
 }
 
-
 // Gets pagination data and remaining cookies
 function getPages(uri) {
   totalPages = null;
@@ -74,7 +70,6 @@ function getPages(uri) {
   });
 }
 
-
 // Gets orders from page
 function getPageData(uri) {
   return new Promise((resolve, reject) => {
@@ -96,32 +91,22 @@ function getPageData(uri) {
   })
 }
 
-
 // Creates array of async requests
 function preparePromises(url) {
   let promises = [];
-  return new Promise((resolve, reject) => {
-    for (i = 1; i <= totalPages; i++) {
-      let p = getPageData(`${url}?page=${i.toString()}`);
-      promises.push(p);
-    }
-    console.log('promises array', promises);
-    resolve(promises);
-  })
+  for (i = 1; i <= totalPages; i++) {
+    let getPage = getPageData(`${url}?page=${i.toString()}`);
+    promises.push(getPage);
+  }
+  return promises;
 }
-
-
 
 // Filters out fulfilled orders
 function removeFulfilledOrders() {
-  console.log('Removing fulfilled orders');
   unfulfilledOrders = orders.filter((order) => {
     return order.fulfilled !== true;
-  })
-  console.log('unfulfilledOrders', unfulfilledOrders);
+  });
 }
-
-
 
 // Push all orders without cookies first
 function pushOrdersWithoutCookies() {
@@ -129,29 +114,21 @@ function pushOrdersWithoutCookies() {
   let sortingArray = [];
   for (let i = 0; i < unfulfilledOrders.length; i++) {
     if (findWithAttr(unfulfilledOrders[i].products, 'title', 'Cookie') === -1) {
-        pendingOrders.push(unfulfilledOrders[i]);
-        unfulfilledOrders.splice(i, 1);
+      pendingOrders.push(unfulfilledOrders[i]);
+      unfulfilledOrders.splice(i, 1);
     };
-  }
-  console.log('unfulfilledOrders', unfulfilledOrders);
-  console.log('pendingOrders', pendingOrders);
+  };
 }
-
-
 
 // Sort orders by amount of cookies
 function sortOrdersByCookies(arr) {
-  console.log('Sorting orders by cookies');
   arr.sort((a, b) => {
     return b.products[b.products.find({ title: 'Cookie' })].amount - a.products[a.products.find({ title: 'Cookie' })].amount;
-  })
-  console.log('sorted by cookies', arr);
+  });
 }
-
 
 // Move orders with cookies from unfulfilled to pending if there's enough cookies left
 function pushCookieOrders() {
-  console.log('Pushing orders with cookies');
   let indexesToRemove = [];
   for (let i = 0; i < unfulfilledOrders.length; i++) {
     let orderCookieCount = unfulfilledOrders[i].products[unfulfilledOrders[i].products.find({ title: 'Cookie' })].amount;
@@ -164,60 +141,46 @@ function pushCookieOrders() {
   for (let i = indexesToRemove.length - 1; i >= 0; i--) {
     unfulfilledOrders.splice(indexesToRemove[i], 1);
   }
-  console.log('unfulfilledOrders', unfulfilledOrders);
-  console.log('pendingOrders', pendingOrders);
 }
-
-
 
 // Sort orders by IDs
 function sortById(arr) {
-  console.log('Sorting by ID');
   arr.sort((a, b) => {
     return a.id - b.id;
   })
 }
-
-
 
 // Creates array of order IDs
 function getOrderIds(arr) {
   arr.forEach((order) => {
     unfulfilledOrderIds.push(order.id);
   });
-  console.log('pushed order IDs to unfulfilledOrderIds', unfulfilledOrderIds);
 }
 
-
-
 app.get('/', (req, res) => {
-
-  // Need to refactor
-  getPages(url)
-  .then(() => {
-    preparePromises(url)
-    .then((promises) => {
-      Promise.all(promises)
-      .then(() => {
-        sortById(orders);
-        removeFulfilledOrders();
-        pushOrdersWithoutCookies();
-        sortOrdersByCookies(unfulfilledOrders);
-        pushCookieOrders();
-        sortById(unfulfilledOrders);
-        getOrderIds(unfulfilledOrders);
-        res.json({
-          'remaining_cookies': remainingCookies,
-          'unfulfilled_orders': unfulfilledOrderIds
-        })
-      })
+  getPages(url).then(() => {
+    Promise.all(preparePromises(url))
+    .then(() => {
+      sortById(orders);
+      removeFulfilledOrders();
+      pushOrdersWithoutCookies();
+      sortOrdersByCookies(unfulfilledOrders);
+      pushCookieOrders();
+      sortById(unfulfilledOrders);
+      getOrderIds(unfulfilledOrders);
+      res.json({
+        'remaining_cookies': remainingCookies,
+        'unfulfilled_orders': unfulfilledOrderIds
+      });
     })
-  });
-
+    .catch((err) => {
+      console.error("Error: ", err);
+    })
+  })
+  .catch((err) => {
+    console.error("Error: ", err);
+  })
 });
-
-
-
 
 app.listen(4444, '0.0.0.0', () => {
     console.log('Listening to port: 4444');
