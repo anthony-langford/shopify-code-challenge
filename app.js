@@ -111,7 +111,6 @@ function removeFulfilledOrders() {
 
 // Push all orders without cookies first
 function pushOrdersWithoutCookies() {
-  console.log('Pushing orders without cookies');
   let sortingArray = [];
   for (let i = 0; i < unfulfilledOrders.length; i++) {
     if (findWithAttr(unfulfilledOrders[i].products, 'title', 'Cookie') === -1) {
@@ -164,19 +163,30 @@ app.get('/', (req, res) => {
     Promise.all(preparePromises(url))
     .then(() => {
       sortById(orders);
+    })
+    .then(() => {
       removeFulfilledOrders();
+    })
+    .then(() => {
       pushOrdersWithoutCookies();
+    })
+    .then(() => {
       sortOrdersByCookies(unfulfilledOrders);
+    })
+    .then(() => {
       pushCookieOrders();
+    })
+    .then(() => {
       sortById(unfulfilledOrders);
+    })
+    .then(() => {
       getOrderIds(unfulfilledOrders);
+    })
+    .then(() => {
       res.json({
         'remaining_cookies': remainingCookies,
         'unfulfilled_orders': unfulfilledOrderIds
       });
-    })
-    .catch((err) => {
-      console.error("Error: ", err);
     })
   })
   .catch((err) => {
