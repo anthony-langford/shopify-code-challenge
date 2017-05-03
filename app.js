@@ -52,9 +52,9 @@ function getPages(uri) {
   return new Promise((resolve, reject) => {
     request({ uri: uri, json: true }, (err, res, body) => {
 
-      console.log('error:', err); // Log the error if one occurred
-      console.log('statusCode:', res && res.statusCode); // Log the response status code if a response was received
-      console.log('body:', body); // Log the body
+      // console.log('error:', err); // Log the error if one occurred
+      console.log('page', body.pagination.current_page, 'statusCode:', res && res.statusCode); // Log the response status code if a response was received
+      // console.log('body:', body); // Log the body
 
       if (!err && res.statusCode === 200) { // Set total pages and remaining cookies if no error. What happens if body.pagination.total = undef? Need error handler
         totalPages = body.pagination.total;
@@ -75,10 +75,9 @@ function getPageData(uri) {
   return new Promise((resolve, reject) => {
     request({ uri: uri, json: true }, (err, res, body) => {
 
-      console.log('PAGE', body.pagination.current_page);
-      console.log('error:', err); // Log the error if one occurred
-      console.log('statusCode:', res && res.statusCode); // Log the response status code if a response was received
-      console.log('body:', body); // Log the body
+      // console.log('error:', err); // Log the error if one occurred
+      console.log('page', body.pagination.current_page, 'statusCode:', res && res.statusCode); // Log the response status code if a response was received
+      // console.log('body:', body); // Log the body
 
       if (!err && res.statusCode === 200) {
         if (body.orders.length > 0) {  // Save orders if any on page
