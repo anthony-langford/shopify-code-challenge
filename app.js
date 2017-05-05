@@ -156,6 +156,7 @@ function getOrderIds(arr) {
   })
 }
 
+// Improve error handling
 app.get('/', (req, res) => {
   getPages(url)
   .then(() => {
