@@ -181,6 +181,7 @@ app.get('/', (req, res) => {
     })
     .then(() => {
       getOrderIds(unfulfilledOrders);
+      console.log('kial eats ass');
     })
     .then(() => {
       res.json({
